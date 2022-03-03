@@ -6,7 +6,7 @@ historyUrl = 'https://www.bitstamp.net/api/v2/ohlc/'
 currentValueHeader = {"step":3600,"limit":1}
 standartTradePair = 'ethusd'
 standartTimeStep = 3600
-ethUnixStart = 1502899200 #2017-08-16 16:00 UTC
+ethUnixStart = 1614797285 #2021-03-03    #1502899200 #2017-08-16 16:00 UTC
 
 
 def fetchValues(tradePair, headerParameters):
