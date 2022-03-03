@@ -1,15 +1,13 @@
 #Emulating the price average trading strategy in Python.
 #Some changes have to be made in order for more efficient strategy evaluation.
-import math
-
-from numpy import average
+from math import fsum
 
 #algo parameters
 
 prices = [1,5,6,2,3,1,4,2,3,1,9,4,8,2,6,2,8,7,6,5,4,9,13,16,17,2,3,9,4]
 lastXPrices = 10
 minDifferenceUp = 5
-minDifferenceDown = 5
+minDifferenceDown = -5
 
 #functions
 
@@ -24,7 +22,7 @@ def avg(array):
     '''
     Returns numeric average of number array.
     '''
-    return math.fsum(array)/len(array)
+    return fsum(array)/len(array)
 
 
 def compareLatestPriceToRelevantValues(idx):
@@ -39,7 +37,18 @@ def compareLatestPriceToRelevantValues(idx):
 
 
 def evaluateLatestMovement(idx):
-    pass
+    diffecence = compareLatestPriceToRelevantValues(idx)
+    if diffecence > minDifferenceUp:
+        #price has gone up, indicate sell
+        return 'sell'
+    else:
+        if diffecence < minDifferenceDown:
+            #price has gone down, indicate buy
+            return 'buy'
+        else:
+            #cannot indicate anything, hold
+            return 'hold'
+
 
 
 
