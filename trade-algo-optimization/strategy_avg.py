@@ -4,9 +4,9 @@ from math import fsum
 
 #algo parameters
 
-lastXPrices = 72
-minDifferenceUp = 300
-minDifferenceDown = -300
+lastXPrices = 0
+minDifferenceUp = 0
+minDifferenceDown = 0
 
 #functions
 
@@ -49,7 +49,12 @@ def evaluateLatestMovement(idx, priceValues)->str:
             return 'hold'
 
 
-#setter functions
+#getter and setter functions
+def getLastXPrices():
+    return lastXPrices
+
+def getDifferences():
+    return (minDifferenceUp, minDifferenceDown)
 
 def setLastXPrices(x):
     global lastXPrices
