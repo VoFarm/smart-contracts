@@ -47,3 +47,17 @@ def evaluateLatestMovement(idx, priceValues)->str:
         else:
             #cannot indicate anything, hold
             return 'hold'
+
+
+#setter functions
+
+def setLastXPrices(x):
+    global lastXPrices
+    lastXPrices = x
+
+
+def setDifferenceUpDown(absDiff):
+    global minDifferenceDown
+    global minDifferenceUp
+    minDifferenceUp = absDiff
+    minDifferenceDown = -absDiff
