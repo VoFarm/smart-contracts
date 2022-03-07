@@ -1,6 +1,7 @@
 from api_bitstamp import fetchHistory
 from file_handling import saveDict, loadDict, extractHistoricalValues
 from strategy_avg import getLastXPrices, getDifferences, setDifferenceUpDown, setLastXPrices, evaluateLatestMovement
+from visualizer import drawPlot
 
 #download price history and save
 #saveDict(fetchHistory(),'trade-algo-optimization/history.json')
@@ -20,8 +21,8 @@ maxGain = (0,)
 gainsByVariables = []
 
 #variable test ranges
-timeRange = range(10, 168)#168
-diffRange = range(20, 300)
+timeRange = range(1, 8)#2-240
+diffRange = range(1, 8)#16-512
 
 def fullSwap(price, recommendation):
     '''
@@ -73,8 +74,11 @@ print(gain, gainVsHodl, getLastXPrices(), getDifferences())
 
 
 '''
+plotData = []
 for t in timeRange:
+    print(t)
     setLastXPrices(t)
+    timeData = []
     for d in diffRange:
         setDifferenceUpDown(d)
         resetAlgorithm()
@@ -83,8 +87,11 @@ for t in timeRange:
             fullSwap(priceValues[idx], recommendation)
             #print(stableBalance(priceValues[-idx]),stableToken,volatileToken)
         gain = stableBalance(priceValues[-1])/100
+        timeData.append(gain)
         gainVsHodl = gain/hodlGain
         #print(gain, gainVsHodl, getLastXPrices(), getDifferences())
         if(gain>maxGain[0]):
             maxGain = (gain, gainVsHodl, t, d)
             print(maxGain)
+    plotData.append(timeData)
+drawPlot(plotData)
