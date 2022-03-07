@@ -1,7 +1,7 @@
 from api_bitstamp import fetchHistory
-from file_handling import saveDict, loadDict, extractHistoricalValues
+from file_handling import saveDict, loadDict, extractHistoricalValues, saveAnalysis
 from strategy_avg import getLastXPrices, getDifferences, setDifferenceUpDown, setLastXPrices, evaluateLatestMovement
-from visualizer import drawPlot
+from visualizer import drawHeatMapPlot, drawAreaMap, drawPortfolioProgress
 
 #download price history and save
 #saveDict(fetchHistory(),'trade-algo-optimization/history.json')
@@ -12,7 +12,8 @@ priceValues = extractHistoricalValues('close',loadDict('trade-algo-optimization/
 stableState = True
 
 #token balances
-stableToken = 100
+defaultValue = 100
+stableToken = defaultValue
 volatileToken = 0
 
 #algo optimization params
@@ -21,13 +22,18 @@ maxGain = (0,)
 gainsByVariables = []
 
 #variable test ranges
-timeRange = range(1, 8)#2-240
-diffRange = range(1, 8)#16-512
+timeRangeStart = 2
+timeRangeEnd = 168
+diffRangeStart = 8
+diffRangeEnd = 768
+timeRange = range(timeRangeStart, timeRangeEnd+1)
+diffRange = range(diffRangeStart, diffRangeEnd+1)
 
-def fullSwap(price, recommendation):
+def fullSwap(price, recommendation)->bool:
     '''
     Fully swaps stable token and volatile token, according to price,
     recommendation and contract state.
+    Returns wether or not a swap has been executed.
     '''
     global stableState
     global stableToken
@@ -37,11 +43,15 @@ def fullSwap(price, recommendation):
         volatileToken = stableToken/price
         stableToken = 0
         stableState = False
+        return True
     #execute sell swap
     if not stableState and recommendation == 'sell':
         stableToken = volatileToken*price
         volatileToken = 0
         stableState = True
+        return True
+    #did not execute swap
+    return False
 
 
 def stableBalance(price):
@@ -58,20 +68,24 @@ def resetAlgorithm():
     global stableToken
     global volatileToken
     global stableState
-    stableToken = 100
+    stableToken = defaultValue
     volatileToken = 0
     stableState = True
-'''
-setLastXPrices(10)
-setDifferenceUpDown(239)
-for idx in range(getLastXPrices(), len(priceValues)):
-    recommendation = evaluateLatestMovement(idx, priceValues)
-    fullSwap(priceValues[idx], recommendation)
-    print(stableBalance(priceValues[idx]))
-gain = stableBalance(priceValues[-1])/100
-gainVsHodl = gain/hodlGain
-print(gain, gainVsHodl, getLastXPrices(), getDifferences())
 
+def singleBacktest(timeValue, differenceValue, priceValues):
+    portfolioProgress = []
+    swaps = []
+    resetAlgorithm()
+    setLastXPrices(timeValue)
+    setDifferenceUpDown(differenceValue)
+    for idx in range(getLastXPrices(), len(priceValues)):
+        recommendation = evaluateLatestMovement(idx, priceValues)
+        swap = fullSwap(priceValues[idx], recommendation)
+        if swap:
+            swaps.append(idx)
+        portfolioProgress.append(stableBalance(priceValues[idx]))
+    gain = stableBalance(priceValues[-1])/defaultValue
+    return portfolioProgress, swaps, gain
 
 '''
 plotData = []
@@ -85,13 +99,20 @@ for t in timeRange:
         for idx in range(getLastXPrices(), len(priceValues)):
             recommendation = evaluateLatestMovement(idx, priceValues)
             fullSwap(priceValues[idx], recommendation)
-            #print(stableBalance(priceValues[-idx]),stableToken,volatileToken)
-        gain = stableBalance(priceValues[-1])/100
+        gain = stableBalance(priceValues[-1])/defaultValue
         timeData.append(gain)
         gainVsHodl = gain/hodlGain
-        #print(gain, gainVsHodl, getLastXPrices(), getDifferences())
         if(gain>maxGain[0]):
             maxGain = (gain, gainVsHodl, t, d)
             print(maxGain)
     plotData.append(timeData)
-drawPlot(plotData)
+'''
+
+
+#saveAnalysis(plotData, timeRangeStart, timeRangeEnd, diffRangeStart, diffRangeEnd, hodlGain, 'backtestBTCHourly.json')
+#analysisFromSave = loadDict('backtest.json')
+#drawHeatMapPlot(analysisFromSave['analysisResult'])
+#drawAreaMap(analysisFromSave['analysisResult'],analysisFromSave['hodlGain'])
+(progress, swaps, gn) = singleBacktest(4,42,priceValues)
+print(len(swaps),progress[-1]/progress[0],priceValues[-1]/priceValues[0])
+drawPortfolioProgress(priceValues, progress)

@@ -1,21 +1,23 @@
+from cProfile import label
 import math
+from turtle import color
 import matplotlib.pyplot as plt
 import numpy as np
 
-a = np.random.random((30, 16))
+#a = np.random.random((30, 16))
 
 
-def drawHeatMapPlot(arrayOfArrays):
+def drawHeatMapPlot(arrayOfArrays,title=''):
     (vmin, vmax) = _vminVmax(arrayOfArrays)
     plt.imshow(arrayOfArrays,cmap='inferno', interpolation='none', vmin=vmin, vmax=vmax)
     plt.colorbar()
-    plt.xlabel('A')
-    plt.ylabel('B')
-    plt.title('WEaeufwef')
+    plt.xlabel('difference')
+    plt.ylabel('time')
+    plt.title(title)
     plt.show()
 
 
-def drawAreaMap(arrayOfArrays, hodlGain):
+def drawAreaMap(arrayOfArrays, hodlGain, title=''):
     colorParameters = {#color parameters adjustet for cmap=Set1
         'uw': 8,   #unprofitable, worse than hodling
         'ub':1,    #unprofitable, better than hodling
@@ -24,10 +26,10 @@ def drawAreaMap(arrayOfArrays, hodlGain):
     }
     arrayOfArrays = _adjustForAreaMap(arrayOfArrays, hodlGain, colorParameters)
     plt.imshow(arrayOfArrays,cmap='Set1', interpolation='none', vmin=0, vmax=9)
-    plt.colorbar()
-    plt.xlabel('A')
-    plt.ylabel('B')
-    plt.title('WEaeufwef')
+    #plt.colorbar()
+    plt.xlabel('difference')
+    plt.ylabel('time')
+    plt.title(title)
     plt.show()
 
 
@@ -65,8 +67,18 @@ def _vminVmax(arrayOfArrays):
             vmax = localMax
     return (vmin, vmax)
 
-#print(a)
-#drawHeatMapPlot(a)
-print(a)
-drawAreaMap(a,0.84)
-#drawPlot(a)
+
+def drawPortfolioProgress(priceValues, portfolioValues, swaps=None):
+    #plt.plot(priceValues)
+    #plt.plot(portfolioValues)
+    #if swaps:
+    #    [plt.axvline(x=s) for s in swaps]
+    #plt.show()
+    figure, axis_1 = plt.subplots()
+    axis_1.plot(priceValues, color='green')
+    axis_2 = axis_1.twinx()
+    axis_2.plot(portfolioValues, color='orange')
+    if swaps:
+        [plt.axvline(x=s) for s in swaps]
+    plt.show()
+

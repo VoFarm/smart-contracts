@@ -1,4 +1,5 @@
 #file handler
+from ctypes.wintypes import HLOCAL
 import json #json can be used to load json data as dict and save dict as json, no ast needed here
 import ast #for converting strings to numbers
 
@@ -43,3 +44,18 @@ def extractHistoricalValues(valueType,historicalDict):
     '''
     values = [ast.literal_eval(x[valueType]) for x in historicalDict['data']['ohlc']]
     return values
+
+
+def saveAnalysis(analysisResult, timeRangeStart, timeRangeEnd, diffRangeStart, diffRangeEnd, hodlGain, jsonPath):
+    '''Saves backtest analysis.'''
+    saveDict(
+        {
+            'analysisResult':analysisResult,
+            'timeRangeStart':timeRangeStart,
+            'timeRangeEnd':timeRangeEnd,
+            'diffRangeStart':diffRangeStart,
+            'diffRangeEnd':diffRangeEnd,
+            'hodlGain':hodlGain,
+        },
+        jsonPath
+    )

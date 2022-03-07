@@ -3,10 +3,10 @@ import ast #ast is used here instead of json because bitstamp returns its data a
 
 #some very useful standard variables
 historyUrl = 'https://www.bitstamp.net/api/v2/ohlc/'
-currentValueHeader = {"step":3600,"limit":1}
-standartTradePair = 'ethusd'
-standartTimeStep = 3600
-ethUnixStart = 1614797285 #2021-03-03    #1502899200 #2017-08-16 16:00 UTC
+currentValueHeader = {"step":3600,"limit":1}#"step":21600,180,3600,86400
+standartTradePair = 'btcusd'#ethusd
+standartTimeStep = 3600#21600 180 3600 86400
+ethUnixStart = 1502899200 #1644679546 2022-02-12 #1614797285 2021-03-03 UTC    #1502899200 #2017-08-16 16:00 UTC
 
 
 def fetchValues(tradePair, headerParameters):
