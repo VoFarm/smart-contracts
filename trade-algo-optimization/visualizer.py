@@ -1,4 +1,3 @@
-from cProfile import label
 import math
 from turtle import color
 import matplotlib.pyplot as plt
@@ -69,11 +68,6 @@ def _vminVmax(arrayOfArrays):
 
 
 def drawPortfolioProgress(priceValues, portfolioValues, swaps=None):
-    #plt.plot(priceValues)
-    #plt.plot(portfolioValues)
-    #if swaps:
-    #    [plt.axvline(x=s) for s in swaps]
-    #plt.show()
     figure, axis_1 = plt.subplots()
     axis_1.plot(priceValues, color='green')
     axis_2 = axis_1.twinx()

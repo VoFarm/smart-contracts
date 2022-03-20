@@ -39,11 +39,11 @@ def evaluateLatestMovement(idx, priceValues)->str:
     diffecence = compareLatestPriceToRelevantValues(idx, priceValues)
     if diffecence > minDifferenceUp:
         #price has gone up, indicate sell
-        return 'sell'
+        return 'sell'#sell
     else:
         if diffecence < minDifferenceDown:
             #price has gone down, indicate buy
-            return 'buy'
+            return 'buy'#buy
         else:
             #cannot indicate anything, hold
             return 'hold'

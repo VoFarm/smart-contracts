@@ -31,6 +31,7 @@ contract VoFarmPool{
     uint256 minStableDeposit;
     uint256 minVolatileDeposit;
 
+
     // represents 100% of the stake
     uint256 totalSupply = 1000000000000000000;
 
