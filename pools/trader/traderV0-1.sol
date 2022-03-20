@@ -18,8 +18,8 @@ contract Trader is AccessControl{
     uint256 minVolatileDeposit = 10;
 
     bytes32 public constant PROVIDER_ROLE = keccak256("Provider");
-    VoFarmPool voFarm;
-    VoFarmRouter voRouter;
+    VoFarmPool voFarmPool;
+    VoFarmRouter voFarmRouter;
 
     string lastAdvice;
 
@@ -29,10 +29,11 @@ contract Trader is AccessControl{
     constructor(string memory _name, 
         address _primary, 
         address _secundary, 
-        address _router) {
+        address _router) 
+    {
 
-        voFarm = new VoFarmPool(_name, _primary, _secundary, _router);
-        voRouter = new VoFarmRouter(_name);
+        voFarmPool = new VoFarmPool(_name, _primary, _secundary, _router, minStableDeposit, minVolatileDeposit);
+        voFarmRouter = new VoFarmRouter(_name);
 
         stable = _primary;
         volat = _secundary;
@@ -89,17 +90,17 @@ contract Trader is AccessControl{
 
     function deposit(address _token, uint _amount) public
     {
-        voFarm.deposit(_token,_amount);
+        voFarmPool.deposit(_token,_amount);
     }
 
     function withdraw() public
     {
-        voFarm.withdraw();
+        voFarmPool.withdraw();
     }
 
     function getBalance(address _token) public view returns(uint256)
     {
-        return voFarm._getPrice(_token);
+        return voFarmPool._getPrice(_token);
     }
 
     // To Be executed by BOT
@@ -108,7 +109,7 @@ contract Trader is AccessControl{
     onlyProvider 
     returns (bool toReturn){
 
-        prices.push(voRouter.getPrimaryPrice());
+        prices.push(voFarmRouter.getPrimaryPrice());
         
         // Get values from investmentStrat
         (
@@ -119,7 +120,7 @@ contract Trader is AccessControl{
             ) = investmentStrat();
         
         if (startTransfer == true) {
-            toReturn = voFarm.swapExcactInToOut(
+            toReturn = voFarmPool.swapExcactInToOut(
                 amount,
                 tokenIN, 
                 tokenOUT
@@ -144,12 +145,12 @@ contract Trader is AccessControl{
 			// verkaufe den stabilen Token und erhalte dafür den volatilen
 			tokenIN = stable;
 			tokenOUT = volat;
-            voFarm.setStableState(false);
+            voFarmPool.setStableState(false);
 		} else if (recom == keccak256(abi.encodePacked("sell"))) {
 			// verkauf den volatilen Token und erhalte dafür stable 
 			tokenIN = volat;
 			tokenOUT = stable;
-            voFarm.setStableState(true);
+            voFarmPool.setStableState(true);
         } 
 
         if ( uint160(tokenIN) != 0) {
