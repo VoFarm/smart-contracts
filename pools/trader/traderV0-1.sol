@@ -12,8 +12,8 @@ contract Trader is AccessControl{
 
     uint256 lastXPrices = 4;
     uint256 minPrices = 4;
-    uint256 minDifferenceUp = 17000000000000000000;
-    uint256 minDifferenceDown = 17000000000000000000;
+    uint256 minDifferenceUp = 170000;
+    uint256 minDifferenceDown = 170000;
     uint256 minStableDeposit = 10;
     uint256 minVolatileDeposit = 10;
 
@@ -26,13 +26,15 @@ contract Trader is AccessControl{
     address private stable;
     address private volat;
 
-    constructor(string memory _name, 
+    // router on arbitrum: 0xE592427A0AEce92De3Edee1F18E0157C05861564
+    constructor(
+        string memory _name, 
         address _primary, 
         address _secundary, 
-        address _router) 
+        address _SwapRouter) 
     {
 
-        voFarmPool = new VoFarmPool(_name, _primary, _secundary, _router, minStableDeposit, minVolatileDeposit);
+        voFarmPool = new VoFarmPool(_name, _primary, _secundary, _SwapRouter, minStableDeposit, minVolatileDeposit);
         voFarmRouter = new VoFarmRouter(_name);
 
         stable = _primary;
@@ -44,7 +46,7 @@ contract Trader is AccessControl{
     }
 
     //-----------------------------
-// Access control
+    // Access control
 
 	modifier onlyAdmin()
     {
@@ -88,19 +90,65 @@ contract Trader is AccessControl{
         revokeRole(DEFAULT_ADMIN_ROLE, toRemove);
     }
 
-    function deposit(address _token, uint _amount) public
+    // Front-End interaction
+    function deposit(address _token, uint _amount) 
+    public
     {
         voFarmPool.deposit(_token,_amount);
     }
 
-    function withdraw() public
+    function withdraw() 
+    public
     {
         voFarmPool.withdraw();
     }
 
-    function getBalance(address _token) public view returns(uint256)
+    function getBalance(address _token) 
+    public 
+    view 
+    returns(uint256)
     {
         return voFarmPool._getPrice(_token);
+    }
+
+    function getEarned()
+    public
+    view
+    returns(uint256)
+    {
+        return voFarmPool.getEarned(msg.sender);
+    }
+
+    function name()
+    public
+    view
+    returns(string memory)
+    {
+        return voFarmPool.name();
+    }
+
+    function getPrimaryToken()
+    public
+    view
+    returns(address)
+    {
+        return voFarmPool.getPrimaryToken();
+    }
+
+    function getSecondaryToken()
+    public
+    view
+    returns(address)
+    {
+        return voFarmPool.getSecondaryToken();
+    }
+
+    function getCurrentToken()
+    public
+    view
+    returns(address)
+    {
+        return voFarmPool.getCurrentToken();
     }
 
     // To Be executed by BOT
@@ -109,7 +157,7 @@ contract Trader is AccessControl{
     onlyProvider 
     returns (bool toReturn){
 
-        prices.push(voFarmRouter.getPrimaryPrice());
+        prices.push(voFarmRouter.getSecondaryPrice());
         
         // Get values from investmentStrat
         (

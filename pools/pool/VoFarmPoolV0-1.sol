@@ -14,7 +14,7 @@ contract VoFarmPool{
 
 	// swapping
     ISwapRouter private swapRouter;
-	uint24 private constant poolFee = 3000;
+	uint24 private constant poolFee = 500;
 
 	// Rinkeby:
     address public stable; 
@@ -30,7 +30,6 @@ contract VoFarmPool{
 
     uint256 minStableDeposit;
     uint256 minVolatileDeposit;
-
 
     // represents 100% of the stake
     uint256 totalSupply = 1000000000000000000;
@@ -325,8 +324,8 @@ contract VoFarmPool{
         //require(success, "Transfer failed.");
     }
 
-    function getEarned() public view returns (uint256)
+    function getEarned(address _address) public view returns (uint256)
     {
-        return (getInvestorStake(msg.sender) * balance()) / totalSupply;
+        return (getInvestorStake(_address) * balance()) / totalSupply;
     }
 }
