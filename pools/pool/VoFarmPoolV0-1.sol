@@ -9,11 +9,7 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 contract VoFarmPool{
 
     //
-    uint256 split;
     string public lastAdvice = ""; 
-
-    //------ access setup
-	
     string private contractName = "";
 
 	// swapping
@@ -23,26 +19,7 @@ contract VoFarmPool{
 	// Rinkeby:
     address public stable; 
     address public volat;
-    
-	//------ oracle request setup
-	Request[] requests;
-	uint256 currentId;
-	struct Request{
-		uint256 id;
-		string tknPair;
-		uint256 agreedValue;
-	}
-	
-	event requestData(
-		uint256 id,
-		string tknPair
-	);
-	
-	event requestDone(
-		uint256 id,
-		uint256 agreedValue
-	);
-
+       
     // Debug -- teilweise später wieder auf private
     string[] advices;
     uint256 public lastCallback;
@@ -51,13 +28,8 @@ contract VoFarmPool{
     //Array of prices: volatile coin - stable coin
     uint256[] prices;
 
-    //number of price values to determine average from
-    uint256 lastXPrices = 10;
-    uint256 minPrices = 6;
-    uint256 minDifferenceUp = 5;
-    uint256 minDifferenceDown = 5;
-    uint256 minStableDeposit = 1;
-    uint256 minVolatileDeposit = 1;
+    uint256 minStableDeposit;
+    uint256 minVolatileDeposit;
 
     // represents 100% of the stake
     uint256 totalSupply = 1000000000000000000;
@@ -78,60 +50,21 @@ contract VoFarmPool{
         string memory _name, 
         address _primary, 
         address _secundary, 
-        address _router)
+        address _router,
+        uint256 _minStableDeposit,
+        uint256 _minVolatileDeposit)
     {
         // Token Settings
         stable = _primary;
         volat = _secundary;
         contractName = _name;
+        minStableDeposit = _minStableDeposit;
+        minVolatileDeposit = _minVolatileDeposit;
 
         swapRouter = ISwapRouter(_router);
 
-        // access-control
-        
     }
 
-
-
-//-----------------------------
-// Oracle functions
-/*
-	function execRequest(
-		string memory _tknPair
-	)
-	private
-	{
-		requests.push(Request(currentId, _tknPair,0));
-		
-		emit requestData(
-			currentId,
-			_tknPair
-		);
-		
-	}
-	
-	function callback(
-		uint256 _id,
-		uint256 _value
-	)
-	public
-	{
-		Request storage currRequest = requests[_id];
-		currRequest.agreedValue = _value;
-
-        lastCallback = _value;
-
-        // check id before push
-        prices.push(_value);
-
-		emit requestDone(
-			_id,
-			_value
-		);
-
-        currentId++;
-	}
-*/
 //-----------------------------
 // Gettes functions / interaction
 
@@ -153,16 +86,6 @@ contract VoFarmPool{
     function _getPriceList() public view returns(uint[] memory)
     {
         return prices;
-    }
-
-    function _getCurrentReqID() public view returns(uint256)
-    {
-        return currentId;
-    }
-
-    function _getRequestPriceAtID(uint256 _id) public view returns(uint256)
-    {
-        return requests[_id].agreedValue;
     }
 
     function _getAdviceCount() public view returns(uint256)
