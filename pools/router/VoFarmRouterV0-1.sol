@@ -57,14 +57,24 @@ contract VoFarmRouter{
         return sqrtPriceX96;
     }
 
+    function getPrimaryToken() public view returns(address)
+    {
+        return pool.token0();
+    }
+
+    function getSecondaryToken() public view returns(address)
+    {
+        return pool.token1();
+    }
+
     function getPrimaryPrice() public view returns(uint256)
     {
-        return ((getX96() ** 2) / (2 ** 192));
+        return ((uint256(getX96()) ** 2) / (2 ** 192));
     }
 
     function getSecondaryPrice() public view returns(uint256)
     {
-        return ((2 ** 192) / (getX96() ** 2));
+        return (2 ** 192 * (10**16)) / (uint256(getX96()) ** 2);
     }
 
 }
